@@ -12,11 +12,11 @@ class Counter
   
   def initialize(filename, interval=60)
     if filename != "fork"
-      if !FileTest.exists?(File.join($dirpath,filename))
-        @db = SQLite3::Database.new(filename)
+      if !FileTest.exists?(File.join($dirpath,$dbFileName))
+        @db = SQLite3::Database.new($dbFileName)
         @db.execute("CREATE TABLE counter(start TEXT, end TEXT, seconds UNSIGNED BIG INT, timestring TEXT);")
       else
-        @db = SQLite3::Database.new(filename)
+        @db = SQLite3::Database.new($dbFileName)
       end
       @startDateTime = getTime()
       @days = @hours = @minutes = @seconds = 0
@@ -148,7 +148,7 @@ end
 
 Process.daemon($dirpath)
 
-if fork()
+if (childpid=fork())
   clock = Counter.new($dbFileName)
   i = 0
   while true
@@ -157,7 +157,13 @@ if fork()
     i += 1
     if i == clock.updateInterval
       i = 0
-      clock.save()
+      if !FileTest.exists?(File.join($dirpath,"shutdown"))
+        clock.save()
+      else
+        File.delete(File.join($dirpath,"shutdown")
+        Process.kill("EXIT", childpid)
+        exit
+      end
     end
   end
 else
