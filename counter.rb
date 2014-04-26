@@ -160,7 +160,7 @@ if (childpid=fork())
       if !FileTest.exists?(File.join($dirpath,"shutdown"))
         clock.save()
       else
-        File.delete(File.join($dirpath,"shutdown")
+        File.delete(File.join($dirpath,"shutdown"))
         Process.kill("EXIT", childpid)
         exit
       end
